@@ -4,352 +4,550 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Soil Memory Machine</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0d0f0e;
-      --bg2: #141614;
-      --bg3: #1a1c1a;
-      --border: rgba(255,255,255,0.07);
-      --border2: rgba(255,255,255,0.12);
-      --text: #e8e6e0;
-      --text2: #8a8a80;
-      --text3: #555550;
-      --accent: #c8e07a;
-      --accent2: #7ab87a;
-      --danger: #e07a7a;
-      --warn: #e0b87a;
-      --mono: 'DM Mono', monospace;
-      --sans: 'DM Sans', sans-serif;
+      --sage:       #b5c9a8;
+      --sage-light: #d4e3cc;
+      --sage-dark:  #7a9e6e;
+      --moss:       #3d5c34;
+      --moss-deep:  #243620;
+      --cream:      #f5f0e8;
+      --parchment:  #ede6d8;
+      --parchment2: #e4dbc8;
+      --brown:      #8c7355;
+      --brown-light:#b09a7a;
+      --blush:      #d4a8a0;
+      --blush-light:#e8cfc9;
+      --gold:       #c4a55a;
+      --gold-light: #dfc48a;
+      --text-dark:  #2a3325;
+      --text-mid:   #5a6e52;
+      --text-light: #8a9e82;
+      --border:     rgba(61,92,52,0.12);
+      --border2:    rgba(61,92,52,0.2);
+      --shadow:     rgba(36,54,32,0.12);
     }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
+      background: var(--cream);
+      color: var(--text-dark);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
       font-size: 14px;
       line-height: 1.6;
       min-height: 100vh;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse at 10% 20%, rgba(181,201,168,0.18) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(196,165,90,0.10) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(212,168,160,0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     /* ── Header ── */
     header {
-      padding: 1.5rem 2rem;
-      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 10;
+      padding: 1.2rem 2.5rem;
+      background: var(--parchment);
+      border-bottom: 1px solid var(--border2);
       display: flex;
-      align-items: baseline;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 20px var(--shadow);
+    }
+
+    .header-left { display: flex; flex-direction: column; gap: 2px; }
+
+    header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--moss);
+      letter-spacing: 0.03em;
+    }
+
+    header h1 span {
+      font-style: normal;
+      font-weight: 300;
+      color: var(--brown-light);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .header-tag {
+      font-size: 11px;
+      font-weight: 200;
+      color: var(--text-light);
+      letter-spacing: 0.1em;
+    }
+
+    .header-deco {
+      display: flex;
+      align-items: center;
       gap: 1rem;
     }
-    header h1 {
-      font-family: var(--mono);
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--accent);
-      letter-spacing: 0.02em;
-    }
-    header p {
-      font-size: 12px;
-      color: var(--text3);
-      font-family: var(--mono);
+
+    .deco-pill {
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 4px 12px;
+      background: rgba(255,255,255,0.5);
     }
 
     /* ── Layout ── */
     .layout {
       display: grid;
-      grid-template-columns: 1fr 360px;
-      height: calc(100vh - 57px);
+      grid-template-columns: 1fr 380px;
+      height: calc(100vh - 65px);
+      position: relative;
+      z-index: 1;
     }
 
     /* ── Map panel ── */
     #map-panel {
       position: relative;
-      border-right: 1px solid var(--border);
       overflow: hidden;
-      background: var(--bg2);
+      background: linear-gradient(135deg, #e8f0e2 0%, #dce8d4 40%, #e4dbc8 100%);
     }
-    #map-panel svg {
-      width: 100%;
-      height: 100%;
-    }
+
+    #map-panel svg { width: 100%; height: 100%; }
+
     .country {
       cursor: pointer;
-      stroke: #0d0f0e;
-      stroke-width: 0.4;
-      fill: #252822;
-      transition: fill 0.2s;
+      stroke: rgba(255,255,255,0.7);
+      stroke-width: 0.5;
+      fill: #c8d8be;
+      transition: fill 0.25s ease;
     }
-    .country:hover { fill: #3a3d36; }
-    .country.active { fill: var(--accent); }
-    .country.risk-high { fill: #4a2020; }
-    .country.risk-mid { fill: #3a3020; }
-    .country.risk-low { fill: #1e3020; }
+    .country:hover { fill: #a8c49a; }
+    .country.active { fill: var(--sage-dark); }
+    .country.risk-high { fill: #c4937a; }
+    .country.risk-mid  { fill: #c4b87a; }
+    .country.risk-low  { fill: #7aaa6e; }
 
     #map-hint {
       position: absolute;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text3);
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--text-mid);
+      background: rgba(245,240,232,0.88);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 6px 20px;
+      backdrop-filter: blur(6px);
+      white-space: nowrap;
+      box-shadow: 0 2px 12px var(--shadow);
     }
 
     #tooltip {
       position: fixed;
-      background: var(--bg3);
+      background: var(--parchment);
       border: 1px solid var(--border2);
-      border-radius: 4px;
-      padding: 6px 10px;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      color: var(--text-dark);
       pointer-events: none;
       display: none;
-      z-index: 100;
+      z-index: 200;
+      box-shadow: 0 4px 16px var(--shadow);
     }
 
     /* ── Legend ── */
     #legend {
       position: absolute;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      top: 1.5rem;
+      left: 1.5rem;
+      background: rgba(245,240,232,0.9);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      padding: 0.875rem 1.1rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+    .legend-title {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 8px;
     }
     .legend-item {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-family: var(--mono);
       font-size: 11px;
-      color: var(--text3);
+      color: var(--text-mid);
+      font-weight: 300;
+      margin-bottom: 5px;
     }
+    .legend-item:last-child { margin-bottom: 0; }
     .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
     }
 
     /* ── Side panel ── */
     #side-panel {
       overflow-y: auto;
-      background: var(--bg);
+      background: var(--parchment);
+      border-left: 1px solid var(--border2);
+      box-shadow: -4px 0 30px var(--shadow);
     }
-    #side-panel::-webkit-scrollbar { width: 4px; }
+    #side-panel::-webkit-scrollbar { width: 3px; }
     #side-panel::-webkit-scrollbar-track { background: transparent; }
-    #side-panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+    #side-panel::-webkit-scrollbar-thumb { background: var(--sage); border-radius: 2px; }
 
     #empty-state {
-      padding: 3rem 2rem;
+      padding: 4rem 2rem;
       text-align: center;
     }
-    #empty-state .icon {
-      font-size: 32px;
-      margin-bottom: 1rem;
-      opacity: 0.3;
+    .empty-botanical { font-size: 44px; margin-bottom: 1.25rem; opacity: 0.3; }
+    #empty-state h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 21px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--moss);
+      margin-bottom: 0.625rem;
     }
     #empty-state p {
-      font-family: var(--mono);
       font-size: 12px;
-      color: var(--text3);
-      line-height: 1.8;
+      font-weight: 300;
+      color: var(--text-light);
+      line-height: 1.9;
+      letter-spacing: 0.04em;
     }
 
     #loading-state {
-      padding: 3rem 2rem;
+      padding: 4rem 2rem;
       text-align: center;
       display: none;
     }
-    .spinner {
-      width: 24px;
-      height: 24px;
-      border: 2px solid var(--border2);
-      border-top-color: var(--accent);
+    .spinner-botanical {
+      width: 30px; height: 30px;
+      border: 1.5px solid var(--sage-light);
+      border-top-color: var(--sage-dark);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 1rem;
+      animation: spin 1.2s ease-in-out infinite;
+      margin: 0 auto 1.25rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     #loading-state p {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text3);
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--text-light);
     }
 
     #dashboard { display: none; }
 
-    /* ── Dashboard sections ── */
     .d-header {
-      padding: 1.5rem 1.5rem 1rem;
+      padding: 1.75rem 1.75rem 1.25rem;
       border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(181,201,168,0.1) 0%, transparent 100%);
+    }
+    .d-eyebrow {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--brown-light);
+      margin-bottom: 5px;
     }
     .d-country {
-      font-family: var(--mono);
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 4px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 400;
+      color: var(--moss);
+      line-height: 1.1;
+      margin-bottom: 3px;
     }
     .d-coords {
-      font-family: var(--mono);
       font-size: 11px;
-      color: var(--text3);
+      font-weight: 200;
+      color: var(--text-light);
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
     }
 
     .risk-badge {
-      display: inline-block;
-      margin-top: 0.75rem;
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 500;
-      padding: 3px 10px;
-      border-radius: 3px;
-      letter-spacing: 0.05em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
     }
-    .risk-badge.high { background: rgba(224,122,122,0.15); color: var(--danger); border: 1px solid rgba(224,122,122,0.2); }
-    .risk-badge.mid  { background: rgba(224,184,122,0.15); color: var(--warn);   border: 1px solid rgba(224,184,122,0.2); }
-    .risk-badge.low  { background: rgba(122,184,122,0.15); color: var(--accent2); border: 1px solid rgba(122,184,122,0.2); }
+    .risk-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .risk-badge.high { background: rgba(196,147,122,0.15); color: #9a5a42; border: 1px solid rgba(196,147,122,0.3); }
+    .risk-badge.high::before { background: #c4937a; }
+    .risk-badge.mid  { background: rgba(196,184,122,0.15); color: #7a6a2a; border: 1px solid rgba(196,184,122,0.3); }
+    .risk-badge.mid::before  { background: #c4b87a; }
+    .risk-badge.low  { background: rgba(122,170,110,0.15); color: #3d6e32; border: 1px solid rgba(122,170,110,0.3); }
+    .risk-badge.low::before  { background: #7aaa6e; }
 
     .d-metrics {
-      padding: 1rem 1.5rem;
+      padding: 1.25rem 1.75rem;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.75rem;
       border-bottom: 1px solid var(--border);
     }
     .metric {
-      background: var(--bg2);
+      background: rgba(255,255,255,0.55);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.75rem;
+      border-radius: 12px;
+      padding: 0.875rem 1rem;
+      transition: box-shadow 0.2s;
     }
+    .metric:hover { box-shadow: 0 2px 14px var(--shadow); }
     .metric-label {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text3);
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 4px;
+      color: var(--text-light);
+      margin-bottom: 6px;
     }
     .metric-value {
-      font-family: var(--mono);
-      font-size: 20px;
-      font-weight: 500;
-      color: var(--text);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--moss);
+      line-height: 1;
+      margin-bottom: 3px;
     }
-    .metric-sub {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text3);
-      margin-top: 2px;
-    }
+    .metric-sub { font-size: 10px; font-weight: 200; color: var(--text-light); }
 
     .d-narrative {
-      padding: 1rem 1.5rem;
+      padding: 1.25rem 1.75rem;
       border-bottom: 1px solid var(--border);
     }
-    .d-narrative p {
-      font-size: 13px;
-      color: var(--text2);
-      line-height: 1.7;
-      border-left: 2px solid var(--accent);
-      padding-left: 0.75rem;
+    .narrative-label {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--brown-light);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .narrative-label::after { content: ''; flex: 1; height: 1px; background: var(--border2); }
+    #d-narrative {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text-mid);
+      line-height: 1.85;
+      font-style: italic;
+      padding-left: 1rem;
+      border-left: 2px solid var(--sage-light);
     }
 
-    .d-charts {
-      padding: 1rem 1.5rem;
+    .d-period {
+      padding: 0.875rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
-    .chart-section {
-      margin-bottom: 1.5rem;
-    }
-    .chart-label {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text3);
+    .d-period label {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      color: var(--text-light);
+      white-space: nowrap;
+    }
+    .d-period select {
+      background: rgba(255,255,255,0.6);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text-mid);
+      font-family: 'Jost', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      padding: 4px 10px;
+      cursor: pointer;
+      outline: none;
+      flex: 1;
+    }
+
+    .d-charts { padding: 1.25rem 1.75rem; }
+    .chart-section { margin-bottom: 1.5rem; }
+    .chart-label {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-light);
       margin-bottom: 0.5rem;
     }
     .chart-wrap {
       position: relative;
-      height: 120px;
+      height: 110px;
+      background: rgba(255,255,255,0.45);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 8px;
     }
 
-    .d-period {
-      padding: 0.75rem 1.5rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    #d-kit-section {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 1.75rem;
+      background: linear-gradient(180deg, rgba(181,201,168,0.08) 0%, transparent 100%);
     }
-    .d-period label {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text3);
+    .kit-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.875rem; }
+    .kit-dot {
+      width: 7px; height: 7px;
+      background: var(--sage-dark);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+    .kit-title {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      color: var(--sage-dark);
     }
-    .d-period select {
-      background: var(--bg2);
+    .kit-card {
+      background: rgba(255,255,255,0.55);
       border: 1px solid var(--border2);
-      border-radius: 4px;
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 11px;
-      padding: 3px 8px;
-      cursor: pointer;
-      outline: none;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 0.875rem;
+    }
+    .kit-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .kit-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .kit-sensor { font-size: 11px; font-weight: 300; color: var(--text-mid); letter-spacing: 0.06em; }
+    .kit-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--moss);
+    }
+    .kit-meta { font-size: 10px; font-weight: 200; color: var(--text-light); line-height: 1.7; margin-top: 0.5rem; }
+    .kit-warning { color: var(--gold); }
+    .kit-note {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--text-light);
+      line-height: 1.75;
     }
 
     .d-footer {
-      padding: 1rem 1.5rem;
+      padding: 1rem 1.75rem 1.5rem;
       border-top: 1px solid var(--border);
     }
     .d-footer p {
-      font-family: var(--mono);
       font-size: 10px;
-      color: var(--text3);
-      line-height: 1.8;
+      font-weight: 200;
+      color: var(--text-light);
+      line-height: 1.9;
+      letter-spacing: 0.03em;
+    }
+
+    .divider {
+      text-align: center;
+      color: var(--sage-light);
+      letter-spacing: 0.4em;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>// SOIL MEMORY MACHINE</h1>
-    <p>global drought intelligence · 1990–2027</p>
+    <div class="header-left">
+      <h1>
+        <span>TeleAgriCulture</span>
+        Soil Memory Machine
+      </h1>
+      <div class="header-tag">Global drought intelligence · 1990 – 2027</div>
+    </div>
+    <div class="header-deco">
+      <div class="deco-pill">Open-Meteo Archive</div>
+      <div class="deco-pill">Kit 1001 · Togo</div>
+      <div style="font-size:20px; opacity:0.35;">🌿</div>
+    </div>
   </header>
 
   <div class="layout">
-
     <div id="map-panel">
       <div id="tooltip"></div>
-      <div id="map-hint">// click any country to analyse</div>
+      <div id="map-hint">Select a country to read its soil memory</div>
       <div id="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#4a2020"></div>high risk</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#3a3020"></div>moderate</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#1e3020"></div>low risk</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#252822"></div>no data</div>
+        <div class="legend-title">Drought risk</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c4937a"></div>High</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c4b87a"></div>Moderate</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7aaa6e"></div>Low</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c8d8be; border:1px solid #aabaa0;"></div>Unread</div>
       </div>
     </div>
 
     <div id="side-panel">
-
       <div id="empty-state">
-        <div class="icon">◈</div>
-        <p>Select a country on the map<br/>to view drought analysis,<br/>historical data and forecast.</p>
+        <div class="empty-botanical">🌱</div>
+        <h2>The earth remembers</h2>
+        <p>Click any country on the map<br/>to read its climate history,<br/>drought patterns &amp; forecast.</p>
+        <div class="divider" style="margin-top:2rem; opacity:0.4; font-size:12px;">· · ·</div>
       </div>
 
       <div id="loading-state">
-        <div class="spinner"></div>
-        <p id="loading-msg">fetching climate data...</p>
+        <div style="margin-top:2rem;"></div>
+        <div class="spinner-botanical"></div>
+        <p>Reading the soil memory...</p>
       </div>
 
       <div id="dashboard">
         <div class="d-header">
+          <div class="d-eyebrow">Climate Analysis</div>
           <div class="d-country" id="d-country">—</div>
           <div class="d-coords" id="d-coords">—</div>
           <div class="risk-badge" id="d-risk-badge">—</div>
@@ -358,6 +556,7 @@
         <div class="d-metrics" id="d-metrics"></div>
 
         <div class="d-narrative">
+          <div class="narrative-label">Soil narrative</div>
           <p id="d-narrative">—</p>
         </div>
 
@@ -373,53 +572,51 @@
         <div class="d-charts">
           <div class="chart-section">
             <div class="chart-label">Annual precipitation (mm)</div>
-            <div class="chart-wrap"><canvas id="chart-precip" role="img" aria-label="Annual precipitation"></canvas></div>
+            <div class="chart-wrap"><canvas id="chart-precip"></canvas></div>
           </div>
           <div class="chart-section">
             <div class="chart-label">Avg max temperature (°C)</div>
-            <div class="chart-wrap"><canvas id="chart-temp" role="img" aria-label="Average max temperature"></canvas></div>
+            <div class="chart-wrap"><canvas id="chart-temp"></canvas></div>
           </div>
           <div class="chart-section">
             <div class="chart-label">Drought risk score (0–100)</div>
-            <div class="chart-wrap"><canvas id="chart-drought" role="img" aria-label="Drought risk score by year"></canvas></div>
+            <div class="chart-wrap"><canvas id="chart-drought"></canvas></div>
           </div>
         </div>
 
-        <div id="d-kit-section" style="display:none; border-top: 1px solid var(--border); padding: 1rem 1.5rem;">
-          <div class="chart-label" style="margin-bottom:0.75rem;">◈ TeleAgriCulture kit data · kit 1001</div>
-          <div style="background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:0.75rem 1rem;">
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.5rem;">
-              <span style="font-family:var(--mono); font-size:11px; color:var(--text3);">sensor</span>
-              <span style="font-family:var(--mono); font-size:11px; color:var(--text3);">reading</span>
+        <div id="d-kit-section">
+          <div class="kit-header">
+            <div class="kit-dot"></div>
+            <div class="kit-title">TeleAgriCulture · Kit 1001 · Sensor data</div>
+          </div>
+          <div class="kit-card">
+            <div class="kit-row" style="padding-top:0;">
+              <span class="kit-sensor">ftTemp</span>
+              <span class="kit-value">22.31°C</span>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid var(--border); padding-top:0.5rem;">
-              <span style="font-family:var(--mono); font-size:12px; color:var(--text2);">ftTemp</span>
-              <span style="font-family:var(--mono); font-size:18px; font-weight:500; color:var(--accent);">22.31°C</span>
-            </div>
-            <div style="margin-top:0.5rem; font-family:var(--mono); font-size:10px; color:var(--text3); line-height:1.6;">
-              Recorded: Sep 2019 · 30 readings<br/>
-              Bespoke sensor · Schmiede residency dataset<br/>
-              <span style="color:var(--warn);">△ Limited snapshot — not continuous monitoring</span>
+            <div class="kit-meta">
+              Recorded: September 2019 · 30 readings<br/>
+              Schmiede residency dataset · Bespoke sensor<br/>
+              <span class="kit-warning">⚠ Limited snapshot — not continuous monitoring</span>
             </div>
           </div>
-          <p style="margin-top:0.75rem; font-size:12px; color:var(--text3); line-height:1.7;">
-            Kit sensor data provides ground-level verification of open climate models.
-            The Sept 2019 reading of 22.31°C aligns with Open-Meteo historical averages
-            for this region, suggesting the sensor is well-calibrated. Expanded kit
-            deployment would significantly improve drought detection accuracy.
+          <p class="kit-note">
+            Ground-level sensor data anchors the open climate model. The Sept 2019 reading
+            aligns with Open-Meteo historical averages, suggesting the kit is well-calibrated.
+            Expanded deployment would deepen drought detection precision.
           </p>
         </div>
 
         <div class="d-footer">
+          <div class="divider" style="margin-bottom:0.75rem; opacity:0.3; font-size:11px;">· · ·</div>
           <p>
             Open data: Open-Meteo Archive API · 1990–2024<br/>
-            Forecast: 2025–2027 · 5yr trailing average<br/>
-            Model: rule-based scoring · precip + temp + evapotranspiration<br/>
-            Bespoke: TeleAgriCulture kit 1001 · ftTemp sensor
+            Forecast: 2025–2027 · 5-year trailing average baseline<br/>
+            Model: interpretable scoring · precipitation + temperature + evapotranspiration<br/>
+            Bespoke: TeleAgriCulture kit 1001 · ftTemp · Togo
           </p>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -427,8 +624,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script>
-
-    /* ── Country data ── */
     const COORDS = {
       "Afghanistan":[33.93,67.71],"Albania":[41.15,20.17],"Algeria":[28.03,1.66],
       "Angola":[-11.2,17.87],"Argentina":[-38.42,-63.62],"Australia":[-25.27,133.78],
@@ -486,133 +681,71 @@
       "862":"Venezuela","704":"Vietnam","887":"Yemen","894":"Zambia","716":"Zimbabwe"
     };
 
-    /* ── Drought scoring ── */
-    function droughtScore(precip30, evap, tempMax) {
-      let s = 0;
-      if (precip30 < 0.3) s += 40;
-      else if (precip30 < 0.8) s += 25;
-      else if (precip30 < 1.5) s += 10;
-      if (evap > 6) s += 25;
-      else if (evap > 4) s += 12;
-      if (tempMax > 38) s += 20;
-      else if (tempMax > 34) s += 10;
-      else if (tempMax > 30) s += 5;
-      return Math.min(100, Math.round(s));
-    }
+    const API = 'http://127.0.0.1:5000';
 
-    /* ── Narrative ── */
-    function narrative(country, score, avgTemp, avgPrecip, trend) {
-      const riskWord = score >= 60 ? 'high' : score >= 35 ? 'moderate' : 'low';
-      const rainSent = avgPrecip < 200
-        ? `Annual precipitation is critically low at ${Math.round(avgPrecip)}mm.`
-        : avgPrecip < 600
-        ? `Rainfall is below average at ${Math.round(avgPrecip)}mm per year.`
-        : `Rainfall is relatively stable at ${Math.round(avgPrecip)}mm annually.`;
-      const tempSent = avgTemp > 35
-        ? `Temperatures are extreme, averaging ${avgTemp.toFixed(1)}°C, which accelerates moisture loss from soil.`
-        : avgTemp > 28
-        ? `Temperatures are elevated at ${avgTemp.toFixed(1)}°C, increasing evaporative stress on crops.`
-        : `Temperatures average ${avgTemp.toFixed(1)}°C — within a moderate range.`;
-      const trendSent = trend > 3
-        ? 'Drought conditions have worsened significantly over the historical record.'
-        : trend < -3
-        ? 'Conditions have improved over time, with declining drought pressure.'
-        : 'Drought patterns have remained broadly stable across the recorded period.';
-      return `${rainSent} ${tempSent} ${trendSent} Overall drought stress is rated ${riskWord} for ${country}.`;
-    }
-
-    /* ── Fetch climate data ── */
-    async function fetchData(lat, lon) {
-      const url = new URL('https://archive-api.open-meteo.com/v1/archive');
-      url.searchParams.set('latitude', lat);
-      url.searchParams.set('longitude', lon);
-      url.searchParams.append('daily', 'temperature_2m_max');
-      url.searchParams.append('daily', 'precipitation_sum');
-      url.searchParams.append('daily', 'et0_fao_evapotranspiration');
-      url.searchParams.set('start_date', '1990-01-01');
-      url.searchParams.set('end_date', '2024-12-31');
-      url.searchParams.set('timezone', 'auto');
-
-      const r = await fetch(url);
+    async function fetchData(lat, lon, name) {
+      const r = await fetch(`${API}/predict?lat=${lat}&lon=${lon}&name=${encodeURIComponent(name)}`);
       const j = await r.json();
-      const d = j.daily;
+      if (j.error) throw new Error(j.error);
 
-      const byYear = {};
-      for (let i = 0; i < d.time.length; i++) {
-        const y = parseInt(d.time[i]);
-        if (!byYear[y]) byYear[y] = { t:[], p:[], e:[] };
-        if (d.temperature_2m_max[i] != null) byYear[y].t.push(d.temperature_2m_max[i]);
-        if (d.precipitation_sum[i] != null)  byYear[y].p.push(d.precipitation_sum[i]);
-        if (d.et0_fao_evapotranspiration[i] != null) byYear[y].e.push(d.et0_fao_evapotranspiration[i]);
-      }
+      const years    = j.history.map(h => h.year);
+      const precips  = j.history.map(h => h.precip);
+      const temps    = j.history.map(h => h.temp);
+      const scores   = j.history.map(h => h.drought_prob);
+      const isFcast  = j.history.map(h => h.forecast);
 
-      const years = [], precips = [], temps = [], scores = [];
-      for (let y = 1990; y <= 2024; y++) {
-        const yr = byYear[y] || { t:[25], p:[0], e:[4] };
-        const avgT = yr.t.reduce((a,b)=>a+b,0) / yr.t.length;
-        const totP = yr.p.reduce((a,b)=>a+b,0);
-        const avgE = yr.e.reduce((a,b)=>a+b,0) / yr.e.length;
-        years.push(y);
-        temps.push(parseFloat(avgT.toFixed(1)));
-        precips.push(Math.round(totP));
-        scores.push(droughtScore(totP/365, avgE, avgT));
-      }
-
-      // Forecast 2025-2027 from 5yr trailing avg
-      const fP = Math.round(precips.slice(-5).reduce((a,b)=>a+b,0)/5);
-      const fT = parseFloat((temps.slice(-5).reduce((a,b)=>a+b,0)/5).toFixed(1));
-      const fS = Math.round(scores.slice(-5).reduce((a,b)=>a+b,0)/5);
-      [2025,2026,2027].forEach(y => { years.push(y); precips.push(fP); temps.push(fT); scores.push(fS); });
-
-      const recentP = precips.slice(-8,-3).reduce((a,b)=>a+b,0)/5;
-      const recentT = temps.slice(-8,-3).reduce((a,b)=>a+b,0)/5;
-      const trend   = scores.slice(-5).reduce((a,b)=>a+b,0)/5 - scores.slice(0,5).reduce((a,b)=>a+b,0)/5;
-      const current = scores[scores.indexOf(scores.find((_,i)=>years[i]===2024))];
-
-      return { years, precips, temps, scores, recentP, recentT, trend, current, forecastStart: 2025 };
+      return {
+        years, precips, temps, scores, isFcast,
+        recentP:      j.avg_precip,
+        recentT:      j.avg_temp,
+        trend:        j.trend,
+        current:      j.current_prob,
+        narrative:    j.narrative,
+        forecastStart: 2025
+      };
     }
 
-    /* ── Charts ── */
     let cP, cT, cD;
 
     function filtered(data, period) {
       const start = period === 'recent' ? 2010 : period === 'forecast' ? 2020 : 1990;
       const idx = data.years.findIndex(y => y >= start);
       return {
-        years:  data.years.slice(idx),
+        years:   data.years.slice(idx),
         precips: data.precips.slice(idx),
-        temps:  data.temps.slice(idx),
-        scores: data.scores.slice(idx)
+        temps:   data.temps.slice(idx),
+        scores:  data.scores.slice(idx),
+        isFcast: (data.isFcast || []).slice(idx)
       };
     }
 
     function renderCharts(data, period) {
       const f = filtered(data, period);
-      const isF = y => y >= data.forecastStart;
-      const gc = 'rgba(255,255,255,0.06)';
-      const tc = '#555550';
+      const isF = (y, i) => f.isFcast ? f.isFcast[i] : y >= data.forecastStart;
+      const gc = 'rgba(61,92,52,0.06)';
+      const tc = '#8a9e82';
       const base = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: {
-          backgroundColor: '#1a1c1a',
-          borderColor: 'rgba(255,255,255,0.12)',
+          backgroundColor: '#ede6d8',
+          borderColor: 'rgba(61,92,52,0.2)',
           borderWidth: 1,
-          titleColor: '#8a8a80',
-          bodyColor: '#e8e6e0',
-          titleFont: { family: 'DM Mono', size: 10 },
-          bodyFont: { family: 'DM Mono', size: 11 }
+          titleColor: '#5a6e52',
+          bodyColor: '#2a3325',
+          titleFont: { family: 'Jost', size: 10, weight: '300' },
+          bodyFont: { family: 'Cormorant Garamond', size: 14 }
         }},
         scales: {
-          x: { ticks: { color: tc, font: { family: 'DM Mono', size: 9 }, maxTicksLimit: 8, maxRotation: 0 }, grid: { color: gc } },
-          y: { ticks: { color: tc, font: { family: 'DM Mono', size: 9 } }, grid: { color: gc } }
+          x: { ticks: { color: tc, font: { family: 'Jost', size: 9, weight: '300' }, maxTicksLimit: 8, maxRotation: 0 }, grid: { color: gc } },
+          y: { ticks: { color: tc, font: { family: 'Jost', size: 9, weight: '300' } }, grid: { color: gc } }
         }
       };
 
       if (cP) cP.destroy();
       cP = new Chart(document.getElementById('chart-precip'), {
         type: 'bar',
-        data: { labels: f.years, datasets: [{ data: f.precips, backgroundColor: f.years.map(y => isF(y) ? 'rgba(200,224,122,0.25)' : 'rgba(200,224,122,0.6)'), borderWidth: 0 }] },
+        data: { labels: f.years, datasets: [{ data: f.precips, backgroundColor: f.years.map(y => isF(y, f.years.indexOf(y)) ? 'rgba(181,201,168,0.4)' : 'rgba(122,158,110,0.65)'), borderWidth: 0, borderRadius: 3 }] },
         options: { ...base }
       });
 
@@ -621,43 +754,39 @@
         type: 'line',
         data: { labels: f.years, datasets: [{
           data: f.temps,
-          borderColor: '#e07a7a',
-          backgroundColor: 'rgba(224,122,122,0.05)',
+          borderColor: '#c4937a',
+          backgroundColor: 'rgba(196,147,122,0.06)',
           borderWidth: 1.5,
           pointRadius: 2,
-          tension: 0.3,
-          segment: { borderDash: ctx => isF(f.years[ctx.p1DataIndex]) ? [4,3] : undefined }
+          pointBackgroundColor: '#c4937a',
+          tension: 0.4,
+          segment: { borderDash: ctx => isF(f.years[ctx.p1DataIndex], ctx.p1DataIndex) ? [4,3] : undefined }
         }]},
         options: { ...base }
       });
 
       if (cD) cD.destroy();
-      const scoreColors = f.scores.map((s, i) => {
-        if (isF(f.years[i])) return 'rgba(138,138,128,0.4)';
-        return s >= 60 ? 'rgba(224,122,122,0.7)' : s >= 35 ? 'rgba(224,184,122,0.7)' : 'rgba(122,184,122,0.7)';
-      });
       cD = new Chart(document.getElementById('chart-drought'), {
         type: 'bar',
-        data: { labels: f.years, datasets: [{ data: f.scores, backgroundColor: scoreColors, borderWidth: 0 }] },
+        data: { labels: f.years, datasets: [{ data: f.scores,
+          backgroundColor: f.scores.map((s,i) => isF(f.years[i], i) ? 'rgba(181,201,168,0.4)' : s >= 60 ? 'rgba(196,147,122,0.75)' : s >= 35 ? 'rgba(196,184,122,0.75)' : 'rgba(122,170,110,0.75)'),
+          borderWidth: 0, borderRadius: 3 }] },
         options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 0, max: 100 } } }
       });
     }
 
-    /* ── Select country ── */
-    let currentData = null;
-    let activeEl = null;
+    let currentData = null, activeEl = null;
 
     async function selectCountry(name, lat, lon, el) {
       if (activeEl) activeEl.classList.remove('active');
-      activeEl = el;
-      el.classList.add('active');
+      activeEl = el; el.classList.add('active');
 
       document.getElementById('empty-state').style.display = 'none';
       document.getElementById('dashboard').style.display = 'none';
       document.getElementById('loading-state').style.display = 'block';
 
       try {
-        const data = await fetchData(lat, lon);
+        const data = await fetchData(lat, lon, name);
         currentData = data;
 
         document.getElementById('loading-state').style.display = 'none';
@@ -670,26 +799,19 @@
         const s = data.current;
         const badge = document.getElementById('d-risk-badge');
         badge.className = 'risk-badge ' + (s >= 60 ? 'high' : s >= 35 ? 'mid' : 'low');
-        badge.textContent = s >= 60 ? '⬛ High drought risk' : s >= 35 ? '▪ Moderate drought risk' : '▫ Low drought risk';
+        badge.textContent = s >= 60 ? 'High drought risk' : s >= 35 ? 'Moderate drought risk' : 'Low drought risk';
 
         document.getElementById('d-metrics').innerHTML = `
-          <div class="metric"><div class="metric-label">Drought score</div><div class="metric-value">${s}</div><div class="metric-sub">/ 100 · 2024</div></div>
-          <div class="metric"><div class="metric-label">Avg max temp</div><div class="metric-value">${data.recentT.toFixed(1)}°</div><div class="metric-sub">5yr avg</div></div>
-          <div class="metric"><div class="metric-label">Annual precip</div><div class="metric-value">${Math.round(data.recentP)}mm</div><div class="metric-sub">5yr avg</div></div>
-          <div class="metric"><div class="metric-label">Trend</div><div class="metric-value" style="font-size:14px">${data.trend > 3 ? '↑ Worsening' : data.trend < -3 ? '↓ Improving' : '→ Stable'}</div><div class="metric-sub">since 1990</div></div>
+          <div class="metric"><div class="metric-label">Drought score</div><div class="metric-value">${s}</div><div class="metric-sub">out of 100 · 2024</div></div>
+          <div class="metric"><div class="metric-label">Avg max temp</div><div class="metric-value">${data.recentT.toFixed(1)}°</div><div class="metric-sub">5-year average</div></div>
+          <div class="metric"><div class="metric-label">Annual precip</div><div class="metric-value">${Math.round(data.recentP)}<span style="font-size:15px">mm</span></div><div class="metric-sub">5-year average</div></div>
+          <div class="metric"><div class="metric-label">Trend</div><div class="metric-value" style="font-size:17px; font-family:'Jost'; font-weight:300;">${data.trend > 3 ? '↑ Worsening' : data.trend < -3 ? '↓ Improving' : '→ Stable'}</div><div class="metric-sub">since 1990</div></div>
         `;
 
-        document.getElementById('d-narrative').textContent =
-          narrative(name, s, data.recentT, data.recentP, data.trend);
+        document.getElementById('d-narrative').textContent = data.narrative;
 
-        const period = document.getElementById('d-period').value;
-        renderCharts(data, period);
-
-        // Show kit sensor panel only for Togo
-        const kitSection = document.getElementById('d-kit-section');
-        kitSection.style.display = name === 'Togo' ? 'block' : 'none';
-
-        // Colour the map country
+        renderCharts(data, document.getElementById('d-period').value);
+        document.getElementById('d-kit-section').style.display = name === 'Togo' ? 'block' : 'none';
         el.className = 'country ' + (s >= 60 ? 'risk-high' : s >= 35 ? 'risk-mid' : 'risk-low');
 
       } catch(e) {
@@ -703,7 +825,6 @@
       if (currentData) renderCharts(currentData, document.getElementById('d-period').value);
     });
 
-    /* ── Map ── */
     const tooltip = document.getElementById('tooltip');
 
     d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
@@ -731,14 +852,12 @@
           const name = NAME_MAP[String(d.id).padStart(3,'0')];
           if (name && COORDS[name]) {
             tooltip.style.display = 'block';
-            tooltip.style.left = (event.clientX + 12) + 'px';
-            tooltip.style.top  = (event.clientY - 30) + 'px';
+            tooltip.style.left = (event.clientX + 14) + 'px';
+            tooltip.style.top  = (event.clientY - 38) + 'px';
             tooltip.textContent = name;
           }
         })
-        .on('mouseleave', function() {
-          tooltip.style.display = 'none';
-        })
+        .on('mouseleave', () => { tooltip.style.display = 'none'; })
         .on('click', function(event, d) {
           const name = NAME_MAP[String(d.id).padStart(3,'0')];
           if (name && COORDS[name]) {
@@ -747,34 +866,24 @@
           }
         });
 
-      // ── TeleAgriCulture sensor marker on Togo ──
+      // Togo kit marker
       const togoXY = projection([0.82, 8.62]);
       if (togoXY) {
         svg.append('circle')
-          .attr('cx', togoXY[0]).attr('cy', togoXY[1])
-          .attr('r', 5)
-          .attr('fill', 'none')
-          .attr('stroke', '#c8e07a')
-          .attr('stroke-width', 1.5)
+          .attr('cx', togoXY[0]).attr('cy', togoXY[1]).attr('r', 5)
+          .attr('fill', 'none').attr('stroke', '#7a9e6e').attr('stroke-width', 1.5)
           .style('pointer-events','none');
         svg.append('circle')
-          .attr('cx', togoXY[0]).attr('cy', togoXY[1])
-          .attr('r', 2.5)
-          .attr('fill', '#c8e07a')
-          .style('pointer-events','none');
+          .attr('cx', togoXY[0]).attr('cy', togoXY[1]).attr('r', 2.5)
+          .attr('fill', '#7a9e6e').style('pointer-events','none');
         svg.append('text')
-          .attr('x', togoXY[0] + 8)
-          .attr('y', togoXY[1] + 4)
-          .attr('fill', '#c8e07a')
-          .attr('font-family', 'DM Mono, monospace')
-          .attr('font-size', '9px')
-          .attr('opacity', 0.8)
-          .style('pointer-events','none')
-          .text('◈ kit 1001');
+          .attr('x', togoXY[0] + 9).attr('y', togoXY[1] - 7)
+          .attr('fill', '#7a9e6e')
+          .attr('font-family', 'Jost, sans-serif').attr('font-size', '9px')
+          .attr('font-weight', '300').attr('letter-spacing', '0.08em').attr('opacity', 0.85)
+          .style('pointer-events','none').text('kit 1001');
       }
-
     });
-
   </script>
 </body>
 </html>

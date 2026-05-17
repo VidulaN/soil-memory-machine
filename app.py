@@ -4,7 +4,7 @@ import pickle
 from narrative.generate import generate_narrative
 from datetime import date, timedelta
 
-# ── 1. Fetch recent climate data ──────────────────────────────────────────────
+#Fetch recent climate data 
 def get_recent_data():
     end = date.today() - timedelta(days=1)  # yesterday (archive lag)
     start = end - timedelta(days=60)        # 60 days back for rolling windows
@@ -48,7 +48,7 @@ def predict(row):
 
     return prediction, probabilities
 
-# ── 3. Generate narrative ─────────────────────────────────────────────────────
+#Generate narrative
 def run():
     print("Fetching latest climate data for Togo...")
     row = get_recent_data()

@@ -7,7 +7,7 @@ import os
 
 os.makedirs("model", exist_ok=True)
 
-# ── 1. Load data ──────────────────────────────────────────────────────────────
+#Load data 
 df = pd.read_csv("data/dataset.csv").dropna()
 
 features = ["temp_max", "precipitation", "precip_7day", "precip_30day", 
@@ -17,12 +17,12 @@ target = "drought_risk"
 X = df[features]
 y = df[target]
 
-# ── 2. Train/test split ───────────────────────────────────────────────────────
+#Train/test split 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
 
-# ── 3. Train model ────────────────────────────────────────────────────────────
+#Train model 
 model = RandomForestClassifier(
     n_estimators=100,
     class_weight="balanced",  # handles the imbalance
@@ -30,18 +30,18 @@ model = RandomForestClassifier(
 )
 model.fit(X_train, y_train)
 
-# ── 4. Evaluate ───────────────────────────────────────────────────────────────
+#Evaluate 
 y_pred = model.predict(X_test)
 print("=== Model Performance ===")
 print(classification_report(y_test, y_pred, target_names=["No Drought", "Drought"]))
 
-# ── 5. Feature importance ─────────────────────────────────────────────────────
+#Feature importance
 print("=== Feature Importance ===")
 for feat, imp in sorted(zip(features, model.feature_importances_), 
                          key=lambda x: x[1], reverse=True):
     print(f"  {feat}: {imp:.3f}")
 
-# ── 6. Save model ─────────────────────────────────────────────────────────────
+#Save model
 with open("model/drought_model.pkl", "wb") as f:
     pickle.dump(model, f)
 

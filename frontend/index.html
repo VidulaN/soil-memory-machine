@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soil Memory Machine</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f0e;
+      --bg2: #141614;
+      --bg3: #1a1c1a;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --text: #e8e6e0;
+      --text2: #8a8a80;
+      --text3: #555550;
+      --accent: #c8e07a;
+      --accent2: #7ab87a;
+      --danger: #e07a7a;
+      --warn: #e0b87a;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+    }
+    header h1 {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+    }
+    header p {
+      font-size: 12px;
+      color: var(--text3);
+      font-family: var(--mono);
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      height: calc(100vh - 57px);
+    }
+
+    /* ── Map panel ── */
+    #map-panel {
+      position: relative;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--bg2);
+    }
+    #map-panel svg {
+      width: 100%;
+      height: 100%;
+    }
+    .country {
+      cursor: pointer;
+      stroke: #0d0f0e;
+      stroke-width: 0.4;
+      fill: #252822;
+      transition: fill 0.2s;
+    }
+    .country:hover { fill: #3a3d36; }
+    .country.active { fill: var(--accent); }
+    .country.risk-high { fill: #4a2020; }
+    .country.risk-mid { fill: #3a3020; }
+    .country.risk-low { fill: #1e3020; }
+
+    #map-hint {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    #tooltip {
+      position: fixed;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      pointer-events: none;
+      display: none;
+      z-index: 100;
+    }
+
+    /* ── Legend ── */
+    #legend {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* ── Side panel ── */
+    #side-panel {
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    #side-panel::-webkit-scrollbar { width: 4px; }
+    #side-panel::-webkit-scrollbar-track { background: transparent; }
+    #side-panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    #empty-state {
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    #empty-state .icon {
+      font-size: 32px;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+    #empty-state p {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text3);
+      line-height: 1.8;
+    }
+
+    #loading-state {
+      padding: 3rem 2rem;
+      text-align: center;
+      display: none;
+    }
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading-state p {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    #dashboard { display: none; }
+
+    /* ── Dashboard sections ── */
+    .d-header {
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .d-country {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .d-coords {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    .risk-badge {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 3px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .risk-badge.high { background: rgba(224,122,122,0.15); color: var(--danger); border: 1px solid rgba(224,122,122,0.2); }
+    .risk-badge.mid  { background: rgba(224,184,122,0.15); color: var(--warn);   border: 1px solid rgba(224,184,122,0.2); }
+    .risk-badge.low  { background: rgba(122,184,122,0.15); color: var(--accent2); border: 1px solid rgba(122,184,122,0.2); }
+
+    .d-metrics {
+      padding: 1rem 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .metric {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+    }
+    .metric-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .metric-value {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .metric-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    .d-narrative {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .d-narrative p {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.7;
+      border-left: 2px solid var(--accent);
+      padding-left: 0.75rem;
+    }
+
+    .d-charts {
+      padding: 1rem 1.5rem;
+    }
+    .chart-section {
+      margin-bottom: 1.5rem;
+    }
+    .chart-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+    }
+    .chart-wrap {
+      position: relative;
+      height: 120px;
+    }
+
+    .d-period {
+      padding: 0.75rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .d-period label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .d-period select {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .d-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .d-footer p {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text3);
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>// SOIL MEMORY MACHINE</h1>
+    <p>global drought intelligence · 1990–2027</p>
+  </header>
+
+  <div class="layout">
+
+    <div id="map-panel">
+      <div id="tooltip"></div>
+      <div id="map-hint">// click any country to analyse</div>
+      <div id="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4a2020"></div>high risk</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3a3020"></div>moderate</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1e3020"></div>low risk</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#252822"></div>no data</div>
+      </div>
+    </div>
+
+    <div id="side-panel">
+
+      <div id="empty-state">
+        <div class="icon">◈</div>
+        <p>Select a country on the map<br/>to view drought analysis,<br/>historical data and forecast.</p>
+      </div>
+
+      <div id="loading-state">
+        <div class="spinner"></div>
+        <p id="loading-msg">fetching climate data...</p>
+      </div>
+
+      <div id="dashboard">
+        <div class="d-header">
+          <div class="d-country" id="d-country">—</div>
+          <div class="d-coords" id="d-coords">—</div>
+          <div class="risk-badge" id="d-risk-badge">—</div>
+        </div>
+
+        <div class="d-metrics" id="d-metrics"></div>
+
+        <div class="d-narrative">
+          <p id="d-narrative">—</p>
+        </div>
+
+        <div class="d-period">
+          <label>Period</label>
+          <select id="d-period">
+            <option value="all">1990 – 2024 (full history)</option>
+            <option value="recent">2010 – 2024</option>
+            <option value="forecast">2020 – 2027 (+ forecast)</option>
+          </select>
+        </div>
+
+        <div class="d-charts">
+          <div class="chart-section">
+            <div class="chart-label">Annual precipitation (mm)</div>
+            <div class="chart-wrap"><canvas id="chart-precip" role="img" aria-label="Annual precipitation"></canvas></div>
+          </div>
+          <div class="chart-section">
+            <div class="chart-label">Avg max temperature (°C)</div>
+            <div class="chart-wrap"><canvas id="chart-temp" role="img" aria-label="Average max temperature"></canvas></div>
+          </div>
+          <div class="chart-section">
+            <div class="chart-label">Drought risk score (0–100)</div>
+            <div class="chart-wrap"><canvas id="chart-drought" role="img" aria-label="Drought risk score by year"></canvas></div>
+          </div>
+        </div>
+
+        <div id="d-kit-section" style="display:none; border-top: 1px solid var(--border); padding: 1rem 1.5rem;">
+          <div class="chart-label" style="margin-bottom:0.75rem;">◈ TeleAgriCulture kit data · kit 1001</div>
+          <div style="background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:0.75rem 1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.5rem;">
+              <span style="font-family:var(--mono); font-size:11px; color:var(--text3);">sensor</span>
+              <span style="font-family:var(--mono); font-size:11px; color:var(--text3);">reading</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid var(--border); padding-top:0.5rem;">
+              <span style="font-family:var(--mono); font-size:12px; color:var(--text2);">ftTemp</span>
+              <span style="font-family:var(--mono); font-size:18px; font-weight:500; color:var(--accent);">22.31°C</span>
+            </div>
+            <div style="margin-top:0.5rem; font-family:var(--mono); font-size:10px; color:var(--text3); line-height:1.6;">
+              Recorded: Sep 2019 · 30 readings<br/>
+              Bespoke sensor · Schmiede residency dataset<br/>
+              <span style="color:var(--warn);">△ Limited snapshot — not continuous monitoring</span>
+            </div>
+          </div>
+          <p style="margin-top:0.75rem; font-size:12px; color:var(--text3); line-height:1.7;">
+            Kit sensor data provides ground-level verification of open climate models.
+            The Sept 2019 reading of 22.31°C aligns with Open-Meteo historical averages
+            for this region, suggesting the sensor is well-calibrated. Expanded kit
+            deployment would significantly improve drought detection accuracy.
+          </p>
+        </div>
+
+        <div class="d-footer">
+          <p>
+            Open data: Open-Meteo Archive API · 1990–2024<br/>
+            Forecast: 2025–2027 · 5yr trailing average<br/>
+            Model: rule-based scoring · precip + temp + evapotranspiration<br/>
+            Bespoke: TeleAgriCulture kit 1001 · ftTemp sensor
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+
+    /* ── Country data ── */
+    const COORDS = {
+      "Afghanistan":[33.93,67.71],"Albania":[41.15,20.17],"Algeria":[28.03,1.66],
+      "Angola":[-11.2,17.87],"Argentina":[-38.42,-63.62],"Australia":[-25.27,133.78],
+      "Austria":[47.52,14.55],"Bangladesh":[23.68,90.36],"Belgium":[50.50,4.47],
+      "Bolivia":[-16.29,-63.59],"Brazil":[-14.24,-51.93],"Bulgaria":[42.73,25.49],
+      "Cambodia":[12.57,104.99],"Cameroon":[3.85,11.50],"Canada":[56.13,-106.35],
+      "Chile":[-35.68,-71.54],"China":[35.86,104.20],"Colombia":[4.57,-74.30],
+      "Congo":[-0.23,15.83],"Croatia":[45.10,15.20],"Cuba":[21.52,-77.78],
+      "Czech Republic":[49.82,15.47],"Denmark":[56.26,9.50],"Ecuador":[-1.83,-78.18],
+      "Egypt":[26.82,30.80],"Ethiopia":[9.15,40.49],"Finland":[61.92,25.75],
+      "France":[46.23,2.21],"Germany":[51.17,10.45],"Ghana":[7.95,-1.02],
+      "Greece":[39.07,21.82],"Guatemala":[15.78,-90.23],"Haiti":[18.97,-72.29],
+      "Honduras":[15.20,-86.24],"Hungary":[47.16,19.50],"India":[20.59,78.96],
+      "Indonesia":[-0.79,113.92],"Iran":[32.43,53.69],"Iraq":[33.22,43.68],
+      "Ireland":[53.41,-8.24],"Israel":[31.05,34.85],"Italy":[41.87,12.57],
+      "Japan":[36.20,138.25],"Jordan":[30.59,36.24],"Kazakhstan":[48.02,66.92],
+      "Kenya":[-0.02,37.91],"Libya":[26.34,17.23],"Madagascar":[-18.77,46.87],
+      "Malaysia":[4.21,101.98],"Mali":[17.57,-3.99],"Mexico":[23.63,-102.55],
+      "Morocco":[31.79,-7.09],"Mozambique":[-18.67,35.53],"Myanmar":[16.87,96.08],
+      "Nepal":[28.39,84.12],"Netherlands":[52.13,5.29],"New Zealand":[-40.90,174.89],
+      "Nigeria":[9.08,8.68],"Norway":[60.47,8.47],"Pakistan":[30.38,69.35],
+      "Paraguay":[-23.44,-58.44],"Peru":[-9.19,-75.02],"Philippines":[12.88,121.77],
+      "Poland":[51.92,19.15],"Portugal":[39.40,-8.22],"Romania":[45.94,24.97],
+      "Russia":[61.52,105.32],"Saudi Arabia":[23.89,45.08],"Senegal":[14.50,-14.45],
+      "Serbia":[44.02,21.01],"Somalia":[5.15,46.20],"South Africa":[-30.56,22.94],
+      "South Korea":[35.91,127.77],"Spain":[40.46,-3.75],"Sudan":[12.86,30.22],
+      "Sweden":[60.13,18.64],"Switzerland":[46.82,8.23],"Syria":[34.80,38.99],
+      "Tanzania":[-6.37,34.89],"Thailand":[15.87,100.99],"Togo":[8.62,0.82],
+      "Turkey":[38.96,35.24],"Uganda":[1.37,32.29],"Ukraine":[48.38,31.17],
+      "United Kingdom":[55.38,-3.44],"United States":[37.09,-95.71],
+      "Uruguay":[-32.52,-55.77],"Uzbekistan":[41.38,64.59],"Venezuela":[6.42,-66.59],
+      "Vietnam":[14.06,108.28],"Yemen":[15.55,48.52],"Zambia":[-13.13,27.85],
+      "Zimbabwe":[-19.02,29.15]
+    };
+
+    const NAME_MAP = {
+      "004":"Afghanistan","008":"Albania","012":"Algeria","024":"Angola","032":"Argentina",
+      "036":"Australia","040":"Austria","050":"Bangladesh","056":"Belgium","068":"Bolivia",
+      "076":"Brazil","100":"Bulgaria","116":"Cambodia","120":"Cameroon","124":"Canada",
+      "152":"Chile","156":"China","170":"Colombia","178":"Congo","191":"Croatia",
+      "192":"Cuba","203":"Czech Republic","208":"Denmark","218":"Ecuador","818":"Egypt",
+      "231":"Ethiopia","246":"Finland","250":"France","276":"Germany","288":"Ghana",
+      "300":"Greece","320":"Guatemala","332":"Haiti","340":"Honduras","348":"Hungary",
+      "356":"India","360":"Indonesia","364":"Iran","368":"Iraq","372":"Ireland",
+      "376":"Israel","380":"Italy","392":"Japan","400":"Jordan","398":"Kazakhstan",
+      "404":"Kenya","434":"Libya","450":"Madagascar","458":"Malaysia","466":"Mali",
+      "484":"Mexico","504":"Morocco","508":"Mozambique","104":"Myanmar","524":"Nepal",
+      "528":"Netherlands","554":"New Zealand","566":"Nigeria","578":"Norway",
+      "586":"Pakistan","600":"Paraguay","604":"Peru","608":"Philippines","616":"Poland",
+      "620":"Portugal","642":"Romania","643":"Russia","682":"Saudi Arabia","686":"Senegal",
+      "688":"Serbia","706":"Somalia","710":"South Africa","410":"South Korea","724":"Spain",
+      "729":"Sudan","752":"Sweden","756":"Switzerland","760":"Syria","834":"Tanzania",
+      "764":"Thailand","768":"Togo","792":"Turkey","800":"Uganda","804":"Ukraine",
+      "826":"United Kingdom","840":"United States","858":"Uruguay","860":"Uzbekistan",
+      "862":"Venezuela","704":"Vietnam","887":"Yemen","894":"Zambia","716":"Zimbabwe"
+    };
+
+    /* ── Drought scoring ── */
+    function droughtScore(precip30, evap, tempMax) {
+      let s = 0;
+      if (precip30 < 0.3) s += 40;
+      else if (precip30 < 0.8) s += 25;
+      else if (precip30 < 1.5) s += 10;
+      if (evap > 6) s += 25;
+      else if (evap > 4) s += 12;
+      if (tempMax > 38) s += 20;
+      else if (tempMax > 34) s += 10;
+      else if (tempMax > 30) s += 5;
+      return Math.min(100, Math.round(s));
+    }
+
+    /* ── Narrative ── */
+    function narrative(country, score, avgTemp, avgPrecip, trend) {
+      const riskWord = score >= 60 ? 'high' : score >= 35 ? 'moderate' : 'low';
+      const rainSent = avgPrecip < 200
+        ? `Annual precipitation is critically low at ${Math.round(avgPrecip)}mm.`
+        : avgPrecip < 600
+        ? `Rainfall is below average at ${Math.round(avgPrecip)}mm per year.`
+        : `Rainfall is relatively stable at ${Math.round(avgPrecip)}mm annually.`;
+      const tempSent = avgTemp > 35
+        ? `Temperatures are extreme, averaging ${avgTemp.toFixed(1)}°C, which accelerates moisture loss from soil.`
+        : avgTemp > 28
+        ? `Temperatures are elevated at ${avgTemp.toFixed(1)}°C, increasing evaporative stress on crops.`
+        : `Temperatures average ${avgTemp.toFixed(1)}°C — within a moderate range.`;
+      const trendSent = trend > 3
+        ? 'Drought conditions have worsened significantly over the historical record.'
+        : trend < -3
+        ? 'Conditions have improved over time, with declining drought pressure.'
+        : 'Drought patterns have remained broadly stable across the recorded period.';
+      return `${rainSent} ${tempSent} ${trendSent} Overall drought stress is rated ${riskWord} for ${country}.`;
+    }
+
+    /* ── Fetch climate data ── */
+    async function fetchData(lat, lon) {
+      const url = new URL('https://archive-api.open-meteo.com/v1/archive');
+      url.searchParams.set('latitude', lat);
+      url.searchParams.set('longitude', lon);
+      url.searchParams.append('daily', 'temperature_2m_max');
+      url.searchParams.append('daily', 'precipitation_sum');
+      url.searchParams.append('daily', 'et0_fao_evapotranspiration');
+      url.searchParams.set('start_date', '1990-01-01');
+      url.searchParams.set('end_date', '2024-12-31');
+      url.searchParams.set('timezone', 'auto');
+
+      const r = await fetch(url);
+      const j = await r.json();
+      const d = j.daily;
+
+      const byYear = {};
+      for (let i = 0; i < d.time.length; i++) {
+        const y = parseInt(d.time[i]);
+        if (!byYear[y]) byYear[y] = { t:[], p:[], e:[] };
+        if (d.temperature_2m_max[i] != null) byYear[y].t.push(d.temperature_2m_max[i]);
+        if (d.precipitation_sum[i] != null)  byYear[y].p.push(d.precipitation_sum[i]);
+        if (d.et0_fao_evapotranspiration[i] != null) byYear[y].e.push(d.et0_fao_evapotranspiration[i]);
+      }
+
+      const years = [], precips = [], temps = [], scores = [];
+      for (let y = 1990; y <= 2024; y++) {
+        const yr = byYear[y] || { t:[25], p:[0], e:[4] };
+        const avgT = yr.t.reduce((a,b)=>a+b,0) / yr.t.length;
+        const totP = yr.p.reduce((a,b)=>a+b,0);
+        const avgE = yr.e.reduce((a,b)=>a+b,0) / yr.e.length;
+        years.push(y);
+        temps.push(parseFloat(avgT.toFixed(1)));
+        precips.push(Math.round(totP));
+        scores.push(droughtScore(totP/365, avgE, avgT));
+      }
+
+      // Forecast 2025-2027 from 5yr trailing avg
+      const fP = Math.round(precips.slice(-5).reduce((a,b)=>a+b,0)/5);
+      const fT = parseFloat((temps.slice(-5).reduce((a,b)=>a+b,0)/5).toFixed(1));
+      const fS = Math.round(scores.slice(-5).reduce((a,b)=>a+b,0)/5);
+      [2025,2026,2027].forEach(y => { years.push(y); precips.push(fP); temps.push(fT); scores.push(fS); });
+
+      const recentP = precips.slice(-8,-3).reduce((a,b)=>a+b,0)/5;
+      const recentT = temps.slice(-8,-3).reduce((a,b)=>a+b,0)/5;
+      const trend   = scores.slice(-5).reduce((a,b)=>a+b,0)/5 - scores.slice(0,5).reduce((a,b)=>a+b,0)/5;
+      const current = scores[scores.indexOf(scores.find((_,i)=>years[i]===2024))];
+
+      return { years, precips, temps, scores, recentP, recentT, trend, current, forecastStart: 2025 };
+    }
+
+    /* ── Charts ── */
+    let cP, cT, cD;
+
+    function filtered(data, period) {
+      const start = period === 'recent' ? 2010 : period === 'forecast' ? 2020 : 1990;
+      const idx = data.years.findIndex(y => y >= start);
+      return {
+        years:  data.years.slice(idx),
+        precips: data.precips.slice(idx),
+        temps:  data.temps.slice(idx),
+        scores: data.scores.slice(idx)
+      };
+    }
+
+    function renderCharts(data, period) {
+      const f = filtered(data, period);
+      const isF = y => y >= data.forecastStart;
+      const gc = 'rgba(255,255,255,0.06)';
+      const tc = '#555550';
+      const base = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: {
+          backgroundColor: '#1a1c1a',
+          borderColor: 'rgba(255,255,255,0.12)',
+          borderWidth: 1,
+          titleColor: '#8a8a80',
+          bodyColor: '#e8e6e0',
+          titleFont: { family: 'DM Mono', size: 10 },
+          bodyFont: { family: 'DM Mono', size: 11 }
+        }},
+        scales: {
+          x: { ticks: { color: tc, font: { family: 'DM Mono', size: 9 }, maxTicksLimit: 8, maxRotation: 0 }, grid: { color: gc } },
+          y: { ticks: { color: tc, font: { family: 'DM Mono', size: 9 } }, grid: { color: gc } }
+        }
+      };
+
+      if (cP) cP.destroy();
+      cP = new Chart(document.getElementById('chart-precip'), {
+        type: 'bar',
+        data: { labels: f.years, datasets: [{ data: f.precips, backgroundColor: f.years.map(y => isF(y) ? 'rgba(200,224,122,0.25)' : 'rgba(200,224,122,0.6)'), borderWidth: 0 }] },
+        options: { ...base }
+      });
+
+      if (cT) cT.destroy();
+      cT = new Chart(document.getElementById('chart-temp'), {
+        type: 'line',
+        data: { labels: f.years, datasets: [{
+          data: f.temps,
+          borderColor: '#e07a7a',
+          backgroundColor: 'rgba(224,122,122,0.05)',
+          borderWidth: 1.5,
+          pointRadius: 2,
+          tension: 0.3,
+          segment: { borderDash: ctx => isF(f.years[ctx.p1DataIndex]) ? [4,3] : undefined }
+        }]},
+        options: { ...base }
+      });
+
+      if (cD) cD.destroy();
+      const scoreColors = f.scores.map((s, i) => {
+        if (isF(f.years[i])) return 'rgba(138,138,128,0.4)';
+        return s >= 60 ? 'rgba(224,122,122,0.7)' : s >= 35 ? 'rgba(224,184,122,0.7)' : 'rgba(122,184,122,0.7)';
+      });
+      cD = new Chart(document.getElementById('chart-drought'), {
+        type: 'bar',
+        data: { labels: f.years, datasets: [{ data: f.scores, backgroundColor: scoreColors, borderWidth: 0 }] },
+        options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 0, max: 100 } } }
+      });
+    }
+
+    /* ── Select country ── */
+    let currentData = null;
+    let activeEl = null;
+
+    async function selectCountry(name, lat, lon, el) {
+      if (activeEl) activeEl.classList.remove('active');
+      activeEl = el;
+      el.classList.add('active');
+
+      document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('loading-state').style.display = 'block';
+
+      try {
+        const data = await fetchData(lat, lon);
+        currentData = data;
+
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+
+        document.getElementById('d-country').textContent = name;
+        document.getElementById('d-coords').textContent =
+          `${Math.abs(lat).toFixed(2)}°${lat>=0?'N':'S'} · ${Math.abs(lon).toFixed(2)}°${lon>=0?'E':'W'}`;
+
+        const s = data.current;
+        const badge = document.getElementById('d-risk-badge');
+        badge.className = 'risk-badge ' + (s >= 60 ? 'high' : s >= 35 ? 'mid' : 'low');
+        badge.textContent = s >= 60 ? '⬛ High drought risk' : s >= 35 ? '▪ Moderate drought risk' : '▫ Low drought risk';
+
+        document.getElementById('d-metrics').innerHTML = `
+          <div class="metric"><div class="metric-label">Drought score</div><div class="metric-value">${s}</div><div class="metric-sub">/ 100 · 2024</div></div>
+          <div class="metric"><div class="metric-label">Avg max temp</div><div class="metric-value">${data.recentT.toFixed(1)}°</div><div class="metric-sub">5yr avg</div></div>
+          <div class="metric"><div class="metric-label">Annual precip</div><div class="metric-value">${Math.round(data.recentP)}mm</div><div class="metric-sub">5yr avg</div></div>
+          <div class="metric"><div class="metric-label">Trend</div><div class="metric-value" style="font-size:14px">${data.trend > 3 ? '↑ Worsening' : data.trend < -3 ? '↓ Improving' : '→ Stable'}</div><div class="metric-sub">since 1990</div></div>
+        `;
+
+        document.getElementById('d-narrative').textContent =
+          narrative(name, s, data.recentT, data.recentP, data.trend);
+
+        const period = document.getElementById('d-period').value;
+        renderCharts(data, period);
+
+        // Show kit sensor panel only for Togo
+        const kitSection = document.getElementById('d-kit-section');
+        kitSection.style.display = name === 'Togo' ? 'block' : 'none';
+
+        // Colour the map country
+        el.className = 'country ' + (s >= 60 ? 'risk-high' : s >= 35 ? 'risk-mid' : 'risk-low');
+
+      } catch(e) {
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'block';
+        document.getElementById('empty-state').querySelector('p').textContent = 'Could not load data. Try another country.';
+      }
+    }
+
+    document.getElementById('d-period').addEventListener('change', () => {
+      if (currentData) renderCharts(currentData, document.getElementById('d-period').value);
+    });
+
+    /* ── Map ── */
+    const tooltip = document.getElementById('tooltip');
+
+    d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
+      const features = topojson.feature(world, world.objects.countries).features;
+      const panel = document.getElementById('map-panel');
+      const w = panel.clientWidth || 800;
+      const h = panel.clientHeight || 500;
+
+      const svg = d3.select('#map-panel').append('svg')
+        .attr('viewBox', `0 0 ${w} ${h}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet');
+
+      const projection = d3.geoNaturalEarth1()
+        .scale(w / 6.5)
+        .translate([w / 2, h / 2]);
+
+      const path = d3.geoPath(projection);
+
+      svg.selectAll('path')
+        .data(features)
+        .join('path')
+        .attr('class', 'country')
+        .attr('d', path)
+        .on('mousemove', function(event, d) {
+          const name = NAME_MAP[String(d.id).padStart(3,'0')];
+          if (name && COORDS[name]) {
+            tooltip.style.display = 'block';
+            tooltip.style.left = (event.clientX + 12) + 'px';
+            tooltip.style.top  = (event.clientY - 30) + 'px';
+            tooltip.textContent = name;
+          }
+        })
+        .on('mouseleave', function() {
+          tooltip.style.display = 'none';
+        })
+        .on('click', function(event, d) {
+          const name = NAME_MAP[String(d.id).padStart(3,'0')];
+          if (name && COORDS[name]) {
+            const [lat, lon] = COORDS[name];
+            selectCountry(name, lat, lon, this);
+          }
+        });
+
+      // ── TeleAgriCulture sensor marker on Togo ──
+      const togoXY = projection([0.82, 8.62]);
+      if (togoXY) {
+        svg.append('circle')
+          .attr('cx', togoXY[0]).attr('cy', togoXY[1])
+          .attr('r', 5)
+          .attr('fill', 'none')
+          .attr('stroke', '#c8e07a')
+          .attr('stroke-width', 1.5)
+          .style('pointer-events','none');
+        svg.append('circle')
+          .attr('cx', togoXY[0]).attr('cy', togoXY[1])
+          .attr('r', 2.5)
+          .attr('fill', '#c8e07a')
+          .style('pointer-events','none');
+        svg.append('text')
+          .attr('x', togoXY[0] + 8)
+          .attr('y', togoXY[1] + 4)
+          .attr('fill', '#c8e07a')
+          .attr('font-family', 'DM Mono, monospace')
+          .attr('font-size', '9px')
+          .attr('opacity', 0.8)
+          .style('pointer-events','none')
+          .text('◈ kit 1001');
+      }
+
+    });
+
+  </script>
+</body>
+</html>

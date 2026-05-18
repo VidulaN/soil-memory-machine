@@ -9,26 +9,26 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --sage:       #b5c9a8;
-      --sage-light: #d4e3cc;
-      --sage-dark:  #7a9e6e;
-      --moss:       #3d5c34;
-      --moss-deep:  #243620;
-      --cream:      #f5f0e8;
-      --parchment:  #ede6d8;
-      --parchment2: #e4dbc8;
-      --brown:      #8c7355;
-      --brown-light:#b09a7a;
-      --blush:      #d4a8a0;
-      --blush-light:#e8cfc9;
-      --gold:       #c4a55a;
-      --gold-light: #dfc48a;
-      --text-dark:  #2a3325;
-      --text-mid:   #5a6e52;
-      --text-light: #8a9e82;
-      --border:     rgba(61,92,52,0.12);
-      --border2:    rgba(61,92,52,0.2);
-      --shadow:     rgba(36,54,32,0.12);
+      --sage:       #a8c4c0;
+      --sage-light: #cce0dd;
+      --sage-dark:  #4a8c84;
+      --moss:       #1e4d48;
+      --moss-deep:  #122e2a;
+      --cream:      #f2f5f4;
+      --parchment:  #e8efee;
+      --parchment2: #dce8e6;
+      --brown:      #6e8c88;
+      --brown-light:#8aaba7;
+      --blush:      #a8c4c0;
+      --blush-light:#cce0dd;
+      --gold:       #5a9e94;
+      --gold-light: #7abdb5;
+      --text-dark:  #1a2e2c;
+      --text-mid:   #3a6460;
+      --text-light: #6a9e98;
+      --border:     rgba(30,77,72,0.12);
+      --border2:    rgba(30,77,72,0.2);
+      --shadow:     rgba(18,46,42,0.12);
     }
 
     body {
@@ -39,7 +39,7 @@
       font-size: 14px;
       line-height: 1.6;
       min-height: 100vh;
-      overflow: hidden;
+      overflow: auto;
     }
 
     body::before {
@@ -47,9 +47,9 @@
       position: fixed;
       inset: 0;
       background-image:
-        radial-gradient(ellipse at 10% 20%, rgba(181,201,168,0.18) 0%, transparent 50%),
-        radial-gradient(ellipse at 90% 80%, rgba(196,165,90,0.10) 0%, transparent 40%),
-        radial-gradient(ellipse at 50% 50%, rgba(212,168,160,0.06) 0%, transparent 60%);
+        radial-gradient(ellipse at 10% 20%, rgba(168,196,192,0.18) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(74,140,132,0.10) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(168,212,208,0.06) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -117,7 +117,7 @@
     /* ── Layout ── */
     .layout {
       display: grid;
-      grid-template-columns: 1fr 380px;
+      grid-template-columns: 1fr 420px;
       height: calc(100vh - 65px);
       position: relative;
       z-index: 1;
@@ -127,7 +127,7 @@
     #map-panel {
       position: relative;
       overflow: hidden;
-      background: linear-gradient(135deg, #e8f0e2 0%, #dce8d4 40%, #e4dbc8 100%);
+      background: linear-gradient(135deg, #d8eae8 0%, #c8dedd 40%, #dce8e6 100%);
     }
 
     #map-panel svg { width: 100%; height: 100%; }
@@ -136,14 +136,14 @@
       cursor: pointer;
       stroke: rgba(255,255,255,0.7);
       stroke-width: 0.5;
-      fill: #c8d8be;
+      fill: #a8c4c2;
       transition: fill 0.25s ease;
     }
-    .country:hover { fill: #a8c49a; }
+    .country:hover { fill: #7aaaa6; }
     .country.active { fill: var(--sage-dark); }
     .country.risk-high { fill: #c4937a; }
     .country.risk-mid  { fill: #c4b87a; }
-    .country.risk-low  { fill: #7aaa6e; }
+    .country.risk-low  { fill: #4a9e94; }
 
     #map-hint {
       position: absolute;
@@ -218,9 +218,11 @@
     /* ── Side panel ── */
     #side-panel {
       overflow-y: auto;
+      overflow-x: hidden;
       background: var(--parchment);
       border-left: 1px solid var(--border2);
       box-shadow: -4px 0 30px var(--shadow);
+      height: 100%;
     }
     #side-panel::-webkit-scrollbar { width: 3px; }
     #side-panel::-webkit-scrollbar-track { background: transparent; }
@@ -499,6 +501,43 @@
       color: var(--sage-light);
       letter-spacing: 0.4em;
     }
+
+    #zoom-controls {
+      position: absolute;
+      bottom: 2rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 10;
+    }
+    #zoom-controls button {
+      width: 34px;
+      height: 34px;
+      background: rgba(232,239,238,0.92);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      color: var(--text-mid);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: background 0.15s, color 0.15s;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+    }
+    #zoom-controls button:hover {
+      background: rgba(255,255,255,1);
+      color: var(--moss);
+    }
+    #zoom-controls #zoom-reset {
+      font-size: 13px;
+      letter-spacing: 0;
+    }
   </style>
 </head>
 <body>
@@ -528,6 +567,11 @@
         <div class="legend-item"><div class="legend-dot" style="background:#c4b87a"></div>Moderate</div>
         <div class="legend-item"><div class="legend-dot" style="background:#7aaa6e"></div>Low</div>
         <div class="legend-item"><div class="legend-dot" style="background:#c8d8be; border:1px solid #aabaa0;"></div>Unread</div>
+      </div>
+      <div id="zoom-controls">
+        <button id="zoom-in" title="Zoom in">+</button>
+        <button id="zoom-reset" title="Reset view">⌂</button>
+        <button id="zoom-out" title="Zoom out">−</button>
       </div>
     </div>
 
@@ -745,7 +789,7 @@
       if (cP) cP.destroy();
       cP = new Chart(document.getElementById('chart-precip'), {
         type: 'bar',
-        data: { labels: f.years, datasets: [{ data: f.precips, backgroundColor: f.years.map(y => isF(y, f.years.indexOf(y)) ? 'rgba(181,201,168,0.4)' : 'rgba(122,158,110,0.65)'), borderWidth: 0, borderRadius: 3 }] },
+        data: { labels: f.years, datasets: [{ data: f.precips, backgroundColor: f.years.map(y => isF(y, f.years.indexOf(y)) ? 'rgba(168,196,192,0.4)' : 'rgba(74,140,132,0.65)'), borderWidth: 0, borderRadius: 3 }] },
         options: { ...base }
       });
 
@@ -769,7 +813,7 @@
       cD = new Chart(document.getElementById('chart-drought'), {
         type: 'bar',
         data: { labels: f.years, datasets: [{ data: f.scores,
-          backgroundColor: f.scores.map((s,i) => isF(f.years[i], i) ? 'rgba(181,201,168,0.4)' : s >= 60 ? 'rgba(196,147,122,0.75)' : s >= 35 ? 'rgba(196,184,122,0.75)' : 'rgba(122,170,110,0.75)'),
+          backgroundColor: f.scores.map((s,i) => isF(f.years[i], i) ? 'rgba(168,196,192,0.4)' : s >= 60 ? 'rgba(196,147,122,0.75)' : s >= 35 ? 'rgba(196,184,122,0.75)' : 'rgba(74,158,148,0.75)'),
           borderWidth: 0, borderRadius: 3 }] },
         options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 0, max: 100 } } }
       });
@@ -835,7 +879,8 @@
 
       const svg = d3.select('#map-panel').append('svg')
         .attr('viewBox', `0 0 ${w} ${h}`)
-        .attr('preserveAspectRatio', 'xMidYMid meet');
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('cursor', 'grab');
 
       const projection = d3.geoNaturalEarth1()
         .scale(w / 6.5)
@@ -843,7 +888,10 @@
 
       const path = d3.geoPath(projection);
 
-      svg.selectAll('path')
+      // Zoomable group — all map elements go inside g
+      const g = svg.append('g');
+
+      g.selectAll('path')
         .data(features)
         .join('path')
         .attr('class', 'country')
@@ -869,21 +917,38 @@
       // Togo kit marker
       const togoXY = projection([0.82, 8.62]);
       if (togoXY) {
-        svg.append('circle')
+        g.append('circle')
           .attr('cx', togoXY[0]).attr('cy', togoXY[1]).attr('r', 5)
-          .attr('fill', 'none').attr('stroke', '#7a9e6e').attr('stroke-width', 1.5)
+          .attr('fill', 'none').attr('stroke', '#4a8c84').attr('stroke-width', 1.5)
           .style('pointer-events','none');
-        svg.append('circle')
+        g.append('circle')
           .attr('cx', togoXY[0]).attr('cy', togoXY[1]).attr('r', 2.5)
-          .attr('fill', '#7a9e6e').style('pointer-events','none');
-        svg.append('text')
+          .attr('fill', '#4a8c84').style('pointer-events','none');
+        g.append('text')
           .attr('x', togoXY[0] + 9).attr('y', togoXY[1] - 7)
-          .attr('fill', '#7a9e6e')
+          .attr('fill', '#4a8c84')
           .attr('font-family', 'Jost, sans-serif').attr('font-size', '9px')
           .attr('font-weight', '300').attr('letter-spacing', '0.08em').attr('opacity', 0.85)
           .style('pointer-events','none').text('kit 1001');
       }
+
+      // ── Zoom & Pan ────────────────────────────────────────────────────────
+      const zoom = d3.zoom()
+        .scaleExtent([1, 8])
+        .on('start', () => svg.style('cursor', 'grabbing'))
+        .on('end',   () => svg.style('cursor', 'grab'))
+        .on('zoom',  (event) => g.attr('transform', event.transform));
+
+      svg.call(zoom).on('dblclick.zoom', null);
+
+      document.getElementById('zoom-in').addEventListener('click', () =>
+        svg.transition().duration(300).call(zoom.scaleBy, 1.6));
+      document.getElementById('zoom-out').addEventListener('click', () =>
+        svg.transition().duration(300).call(zoom.scaleBy, 0.625));
+      document.getElementById('zoom-reset').addEventListener('click', () =>
+        svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity));
     });
+
   </script>
 </body>
 </html>
